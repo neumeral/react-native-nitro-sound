@@ -1,7 +1,5 @@
 # react-native-nitro-sound
 
-<img src="Logotype Primary.png" width="70%" alt="Logo" />
-
 [![yarn Version](http://img.shields.io/npm/v/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 [![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 [![Monthly Downloads](http://img.shields.io/npm/dm/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
@@ -15,11 +13,13 @@
 [![Platform - Android](https://img.shields.io/badge/platform-Android-green.svg?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/)
 [![Platform - Web](https://img.shields.io/badge/platform-Web-orange.svg?style=flat-square&logo=googlechrome&logoColor=white)](https://reactnative.dev/docs/react-native-web)
 
+<img src="Logo Primary.png" width="70%" alt="Logo" />
+
 ## Legacy Package (react-native-audio-recorder-player)
 
 [![yarn Version](http://img.shields.io/npm/v/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
 [![Downloads](http://img.shields.io/npm/dm/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
-[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
+[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
 
 ## React Native Nitro Sound 🚀
 
@@ -545,32 +545,31 @@ export const AudioPlayer = ({ audioPath }) => {
 
 ### Running the Example
 
-1. Navigate to the example directory:
+Because this repo uses a Yarn workspace, run everything from the repository root.
+
+1. Install dependencies and build the library:
 
    ```sh
-   cd example
+   yarn
+   yarn prepare
    ```
 
-2. Install dependencies:
-
-   ```sh
-   yarn install
-   ```
-
-3. Start the development server:
+2. Start the development server:
 
    ```sh
    yarn start
    ```
 
-4. Run on your platform:
+3. Run on your platform:
 
    ```sh
    # iOS
-   yarn ios
+   # First time on a new machine, you may need to install pods:
+   (cd example/ios && pod install)
+   yarn example ios
 
    # Android
-   yarn android
+   yarn example android
    ```
 
 ## Troubleshooting
