@@ -1,52 +1,29 @@
-# react-native-audio-recorder-player
+# react-native-nitro-sound
 
 <img src="Logotype Primary.png" width="70%" alt="Logo" />
 
-[![yarn Version](http://img.shields.io/npm/v/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
-[![Downloads](http://img.shields.io/npm/dm/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
-[![CI](https://github.com/hyochan/react-native-audio-recorder-player/actions/workflows/ci.yml/badge.svg)](https://github.com/hyochan/react-native-audio-recorder-player/actions/workflows/ci.yml)
-[![publish-package](https://github.com/hyochan/react-native-audio-recorder-player/actions/workflows/publish-package.yml/badge.svg)](https://github.com/hyochan/react-native-audio-recorder-player/actions/workflows/publish-package.yml)
-![License](http://img.shields.io/npm/l/react-native-audio-recorder-player.svg?style=flat-square)
+[![yarn Version](http://img.shields.io/npm/v/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
+[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
+[![Monthly Downloads](http://img.shields.io/npm/dm/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
+[![CI](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/ci.yml/badge.svg)](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/ci.yml)
+[![publish-package](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/publish-package.yml/badge.svg)](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/publish-package.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
+[![MIT License](http://img.shields.io/npm/l/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
-[![LICENSE](http://img.shields.io/npm/l/@react-native-seoul/masonry-list.svg?style=flat-square)](https://npmjs.org/package/@react-native-seoul/masonry-list)
 
 [![Platform - iOS](https://img.shields.io/badge/platform-iOS-blue.svg?style=flat-square&logo=apple&logoColor=white)](https://developer.apple.com/ios/)
 [![Platform - Android](https://img.shields.io/badge/platform-Android-green.svg?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/)
 [![Platform - Web](https://img.shields.io/badge/platform-Web-orange.svg?style=flat-square&logo=googlechrome&logoColor=white)](https://reactnative.dev/docs/react-native-web)
 
-**🎉 Version 4.1.0 Released with NitroModule Support!**
+## Legacy Package (react-native-audio-recorder-player)
 
-> ⚠️ **Important**: Version 4.0.0 had issues with Nitro integration. Please install version 4.1.0 or later.
-> 🔴 **Critical for v4.x**: Recording operations now run in background threads. **You MUST implement loading states** to handle the async delays, or your UI may appear unresponsive. See [Component Examples](#component-based-implementation) for proper implementation.
+[![yarn Version](http://img.shields.io/npm/v/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
+[![Downloads](http://img.shields.io/npm/dm/react-native-audio-recorder-player.svg?style=flat-square)](https://npmjs.org/package/react-native-audio-recorder-player)
+[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 
-This is a high-performance React Native module for audio recording and playback, now powered by [NitroModules](https://github.com/mrousavy/nitro) for direct native module access without bridge overhead. The library provides simple recorder and player functionalities for iOS, Android, and Web platforms with full TypeScript support and type safety.
+## React Native Nitro Sound 🚀
 
-## Help Maintenance
-
-Maintaining multiple open source projects has been incredibly rewarding, but also a bit exhausting at times.
-If my work has been helpful to you, consider buying me a coffee ☕️ — it would mean the world to me and give me the energy to keep going!
-
-Recently, my audio library has become one of my favorite projects, and I see huge potential for its growth. I’m excited to keep building fun and powerful audio features for the community.
-
-<a href="https://www.buymeacoffee.com/hyochan" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
-[![Paypal](https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png)](https://paypal.me/dooboolab)
-
-## Preview
-
-<img src="https://github.com/user-attachments/assets/2c88f580-4e2b-43f3-a177-bf19d2d40fd5" width=800 alt="Preview"/>
-
-## Documentation & Resources
-
-- 📚 [Migration Guide](./docs/MIGRATION.md) - For migrating from older versions
-- 🔧 [NitroModules Documentation](https://github.com/mrousavy/nitro) - Learn about the underlying technology
-- 📝 [Version 3 Release Note](https://medium.com/dooboolab/react-native-audio-player-and-recorder-v3-7697e25cd07)
-- 📰 [Original Blog Post](https://medium.com/@dooboolab/react-native-audio-recorder-and-player-4aa5f26a666)
-
-## What's New in 4.0.0 🚀
-
-### NitroModule Migration
-
-Version 4.0.0 introduces a complete rewrite using [NitroModules](https://github.com/mrousavy/nitro), offering:
+**React Native Nitro Sound** is a high-performance audio recording and playback library built with [NitroModules](https://github.com/mrousavy/nitro), offering:
 
 - **Zero Bridge Overhead**: Direct native module access for maximum performance
 - **Full Type Safety**: TypeScript definitions generated from native specs
@@ -65,24 +42,62 @@ Version 4.0.0 introduces a complete rewrite using [NitroModules](https://github.
 - New Architecture: optional (Nitro works on both old and new arch)
 - Expo SDK >= 50 (for Expo users)
 
-## Migration from Older Versions
+## 🎉 React Native Nitro Sound - Reborn from React Native Audio Recorder Player
 
-If you're upgrading from version 3.x or earlier, please refer to our [Migration Guide](./docs/MIGRATION.md) for detailed instructions and breaking changes.
+**React Native Nitro Sound** is the reborn version of [React Native Audio Recorder Player](https://www.npmjs.com/package/react-native-audio-recorder-player)!
+
+For those unfamiliar, this was a beloved library with **40k+ weekly downloads** and **180k+ monthly downloads**. Now, this library embarks on a new journey with [NitroModules](https://github.com/mrousavy/nitro), starting fresh as **react-native-nitro-sound**.
+
+As the creator of [Flutter Sound](https://pub.dev/packages/flutter_sound), the name 'Sound' feels much more familiar and close to my heart. This rebranding is not just a name change, but a commitment to actively maintain and evolve this library with even greater dedication.
+
+Starting fresh with **version 1.0.0**, we're delivering a more powerful and stable audio solution. Special thanks to [@mrousavy](https://github.com/mrousavy) for creating this amazing technology! 🙏
+
+Your continued support and interest mean the world to us!
+
+---
+
+This is a high-performance React Native module for audio recording and playback, now powered by [NitroModules](https://github.com/mrousavy/nitro) for direct native module access without bridge overhead. The library provides simple recorder and player functionalities for iOS, Android, and Web platforms with full TypeScript support and type safety.
+
+> 🔴 **Critical**: Recording operations now run in background threads. **You MUST implement loading states** to handle the async delays, or your UI may appear unresponsive. See [Component Examples](#component-based-implementation) for proper implementation.
+
+## Help Maintenance
+
+This is one of those projects that brings me joy to work on. If you find it useful, consider buying me a coffee ☕️ — your support keeps me motivated!
+
+<a href="https://www.buymeacoffee.com/hyochan" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/purple_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+[![Paypal](https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png)](https://paypal.me/dooboolab)
+
+## Preview
+
+<img src="https://github.com/user-attachments/assets/2c88f580-4e2b-43f3-a177-bf19d2d40fd5" width=800 alt="Preview"/>
+
+## Documentation & Resources
+
+- 🔧 [NitroModules Documentation](https://github.com/mrousavy/nitro) - Learn about the underlying technology
+- 📝 [Version 3 Release Note](https://medium.com/dooboolab/react-native-audio-player-and-recorder-v3-7697e25cd07)
+- 📰 [Original Blog Post](https://medium.com/@dooboolab/react-native-audio-recorder-and-player-4aa5f26a666)
+
+## Migration from react-native-audio-recorder-player
+
+If you're migrating from `react-native-audio-recorder-player` (version 3.x or earlier), the API remains largely the same. Simply update your package name:
+
+```diff
+- import AudioRecorderPlayer from 'react-native-audio-recorder-player';
++ import Sound from 'react-native-nitro-sound';
+```
 
 ## Getting started
-
-> ⚠️ **Important**: Install version 4.1.0 or later to avoid Nitro integration issues from version 4.0.0.
 
 1. **Install packages**:
 
    ```sh
-   yarn add react-native-audio-recorder-player react-native-nitro-modules
+   yarn add react-native-nitro-sound react-native-nitro-modules
    ```
 
    Or using npm:
 
    ```sh
-   npm install react-native-audio-recorder-player react-native-nitro-modules
+   npm install react-native-nitro-sound react-native-nitro-modules
    ```
 
 2. **Align React Native dependencies (recommended)**:
@@ -250,93 +265,93 @@ if (Platform.OS === 'android') {
 ### Basic Usage
 
 ```typescript
-import AudioRecorderPlayer, {
+import Sound, {
   AudioEncoderAndroidType,
   AudioSourceAndroidType,
   AVEncoderAudioQualityIOSType,
   AVEncodingOption,
   RecordBackType,
   PlayBackType,
-} from 'react-native-audio-recorder-player';
+} from 'react-native-nitro-sound';
 
-// AudioRecorderPlayer is a singleton instance, use directly
+// Sound is a singleton instance, use directly
 
 // Recording
 const onStartRecord = async () => {
   // Set up recording progress listener
-  AudioRecorderPlayer.addRecordBackListener((e: RecordBackType) => {
+  Sound.addRecordBackListener((e: RecordBackType) => {
     console.log('Recording progress:', e.currentPosition, e.currentMetering);
     setRecordSecs(e.currentPosition);
-    setRecordTime(AudioRecorderPlayer.mmssss(Math.floor(e.currentPosition)));
+    setRecordTime(Sound.mmssss(Math.floor(e.currentPosition)));
   });
 
-  const result = await AudioRecorderPlayer.startRecorder();
+  const result = await Sound.startRecorder();
   console.log('Recording started:', result);
 };
 
 const onStopRecord = async () => {
-  const result = await AudioRecorderPlayer.stopRecorder();
-  AudioRecorderPlayer.removeRecordBackListener();
+  const result = await Sound.stopRecorder();
+  Sound.removeRecordBackListener();
   console.log('Recording stopped:', result);
 };
 
 // Pause/Resume Recording
 const onPauseRecord = async () => {
-  await AudioRecorderPlayer.pauseRecorder();
+  await Sound.pauseRecorder();
   console.log('Recording paused');
 };
 
 const onResumeRecord = async () => {
-  await AudioRecorderPlayer.resumeRecorder();
+  await Sound.resumeRecorder();
   console.log('Recording resumed');
 };
 
 // Playback
 const onStartPlay = async () => {
   // Set up playback progress listener
-  AudioRecorderPlayer.addPlayBackListener((e: PlayBackType) => {
+  Sound.addPlayBackListener((e: PlayBackType) => {
     console.log('Playback progress:', e.currentPosition, e.duration);
     setCurrentPosition(e.currentPosition);
     setTotalDuration(e.duration);
-    setPlayTime(AudioRecorderPlayer.mmssss(Math.floor(e.currentPosition)));
-    setDuration(AudioRecorderPlayer.mmssss(Math.floor(e.duration)));
+    setPlayTime(Sound.mmssss(Math.floor(e.currentPosition)));
+    setDuration(Sound.mmssss(Math.floor(e.duration)));
   });
 
   // Set up playback end listener
-  AudioRecorderPlayer.addPlaybackEndListener((e: PlaybackEndType) => {
+  Sound.addPlaybackEndListener((e: PlaybackEndType) => {
     console.log('Playback completed:', e);
     // Handle playback completion
     setIsPlaying(false);
     setCurrentPosition(0);
   });
 
-  const result = await AudioRecorderPlayer.startPlayer();
+  const result = await Sound.startPlayer();
   console.log('Playback started:', result);
 };
 
 const onPausePlay = async () => {
-  await AudioRecorderPlayer.pausePlayer();
+  await Sound.pausePlayer();
 };
 
 const onStopPlay = async () => {
-  AudioRecorderPlayer.stopPlayer();
-  AudioRecorderPlayer.removePlayBackListener();
-  AudioRecorderPlayer.removePlaybackEndListener();
+  Sound.stopPlayer();
+  Sound.removePlayBackListener();
+  Sound.removePlaybackEndListener();
 };
 
 // Seeking
 const seekTo = async (milliseconds: number) => {
-  await AudioRecorderPlayer.seekToPlayer(milliseconds);
+  await Sound.seekToPlayer(milliseconds);
 };
 
 // Volume control
 const setVolume = async (volume: number) => {
-  await AudioRecorderPlayer.setVolume(volume); // 0.0 - 1.0
+  await Sound.setVolume(volume); // 0.0 - 1.0
 };
 
 // Speed control
 const setSpeed = async (speed: number) => {
-  await AudioRecorderPlayer.setPlaybackSpeed(speed); // 0.5 - 2.0
+  await Sound.setPlaybackSpeed(speed); // 0.5 - 2.0
 };
 ```
 
@@ -358,7 +373,7 @@ const audioSet: AudioSet = {
 
 const meteringEnabled = true; // Enable audio metering
 
-const uri = await AudioRecorderPlayer.startRecorder(
+const uri = await Sound.startRecorder(
   undefined, // Use default path
   audioSet,
   meteringEnabled
@@ -409,7 +424,7 @@ For better code organization, consider separating recording and playback into se
 ```typescript
 import React, { useState } from 'react';
 import { View, Button, Text, ActivityIndicator } from 'react-native';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import Sound from 'react-native-nitro-sound';
 
 export const AudioRecorder = ({ onRecordingComplete }) => {
   const [isRecording, setIsRecording] = useState(false);
@@ -419,9 +434,9 @@ export const AudioRecorder = ({ onRecordingComplete }) => {
   const onStartRecord = async () => {
     setIsLoading(true);
     try {
-      const result = await AudioRecorderPlayer.startRecorder();
-      AudioRecorderPlayer.addRecordBackListener((e) => {
-        setRecordTime(AudioRecorderPlayer.mmssss(Math.floor(e.currentPosition)));
+      const result = await Sound.startRecorder();
+      Sound.addRecordBackListener((e) => {
+        setRecordTime(Sound.mmssss(Math.floor(e.currentPosition)));
       });
       setIsRecording(true);
     } catch (error) {
@@ -434,8 +449,8 @@ export const AudioRecorder = ({ onRecordingComplete }) => {
   const onStopRecord = async () => {
     setIsLoading(true);
     try {
-      const result = await AudioRecorderPlayer.stopRecorder();
-      AudioRecorderPlayer.removeRecordBackListener();
+      const result = await Sound.stopRecorder();
+      Sound.removeRecordBackListener();
       setIsRecording(false);
       onRecordingComplete?.(result);
     } catch (error) {
@@ -464,7 +479,7 @@ export const AudioRecorder = ({ onRecordingComplete }) => {
 ```typescript
 import React, { useState } from 'react';
 import { View, Button, Text, ActivityIndicator } from 'react-native';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import Sound from 'react-native-nitro-sound';
 
 export const AudioPlayer = ({ audioPath }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -475,14 +490,14 @@ export const AudioPlayer = ({ audioPath }) => {
   const onStartPlay = async () => {
     setIsLoading(true);
     try {
-      const msg = await AudioRecorderPlayer.startPlayer(audioPath);
-      AudioRecorderPlayer.addPlayBackListener((e) => {
-        setPlayTime(AudioRecorderPlayer.mmssss(Math.floor(e.currentPosition)));
-        setDuration(AudioRecorderPlayer.mmssss(Math.floor(e.duration)));
+      const msg = await Sound.startPlayer(audioPath);
+      Sound.addPlayBackListener((e) => {
+        setPlayTime(Sound.mmssss(Math.floor(e.currentPosition)));
+        setDuration(Sound.mmssss(Math.floor(e.duration)));
       });
 
       // Use the proper playback end listener
-      AudioRecorderPlayer.addPlaybackEndListener((e) => {
+      Sound.addPlaybackEndListener((e) => {
         console.log('Playback completed', e);
         setIsPlaying(false);
         setPlayTime('00:00:00');
@@ -499,9 +514,9 @@ export const AudioPlayer = ({ audioPath }) => {
   const onStopPlay = async () => {
     setIsLoading(true);
     try {
-      await AudioRecorderPlayer.stopPlayer();
-      AudioRecorderPlayer.removePlayBackListener();
-      AudioRecorderPlayer.removePlaybackEndListener();
+      await Sound.stopPlayer();
+      Sound.removePlayBackListener();
+      Sound.removePlaybackEndListener();
       setIsPlaying(false);
       setPlayTime('00:00:00');
       setDuration('00:00:00');
@@ -583,7 +598,7 @@ If you encounter this error when trying to record on iOS:
 
 3. **Make sure you're testing on a real device** if using the simulator doesn't work. Some audio features require real hardware.
 
-4. **Verify the Nitro modules are properly linked** by checking that the `[NitroModules] 🔥 AudioRecorderPlayer is boosted by nitro!` message appears during `pod install`.
+4. **Verify the Nitro modules are properly linked** by checking that the `[NitroModules] 🔥 Sound is boosted by nitro!` message appears during `pod install`.
 
 ### Common Issues
 
