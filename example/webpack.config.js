@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const appDirectory = path.resolve(__dirname);
 const compileNodeModules = [
@@ -43,6 +44,8 @@ module.exports = {
     filename: 'bundle.[contenthash].js',
     path: path.resolve(appDirectory, 'dist'),
     clean: true,
+    // Use relative paths so GitHub Pages under /<repo>/ works
+    publicPath: './',
   },
   cache: false,
   module: {
@@ -77,6 +80,16 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(appDirectory, 'public/index.html'),
+    }),
+    // Copy static assets from public to dist (excluding index.html handled by HtmlWebpackPlugin)
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(appDirectory, 'public'),
+          to: path.resolve(appDirectory, 'dist'),
+          filter: (resourcePath) => !resourcePath.endsWith('index.html'),
+        },
+      ],
     }),
   ],
   devServer: {
