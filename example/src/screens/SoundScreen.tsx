@@ -69,7 +69,11 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
     try {
       setIsRecordLoading(true);
       setLoadingMessage('Loading...');
-      const uri = await soundRef.current.startRecorder(undefined, audioSet, true);
+      const uri = await soundRef.current.startRecorder(
+        undefined,
+        audioSet,
+        true
+      );
       setRecordingPath(uri);
       setIsRecording(true);
       setRecordPosition(0);
@@ -97,7 +101,9 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
     } catch (e) {
       Alert.alert('Stop record error', String(e));
     } finally {
-      try { soundRef.current.removeRecordBackListener(); } catch {}
+      try {
+        soundRef.current.removeRecordBackListener();
+      } catch {}
       setIsStopLoading(false);
     }
   };
@@ -146,13 +152,17 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
           <Text style={styles.backTxt}>{'< Back'}</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Direct NitroSound Usage</Text>
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
         <View style={{ width: 60 }} />
       </View>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>Recorder</Text>
         <View style={styles.row}>
           <TouchableOpacity
-            style={[styles.btn, (isRecordLoading || isRecording) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isRecordLoading || isRecording) && styles.btnDisabled,
+            ]}
             onPress={onStartRecord}
             disabled={isRecordLoading || isRecording}
           >
@@ -170,21 +180,30 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (isRecordLoading || !isRecording) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isRecordLoading || !isRecording) && styles.btnDisabled,
+            ]}
             onPress={() => soundRef.current.pauseRecorder()}
             disabled={isRecordLoading || !isRecording}
           >
             <Text style={styles.btnTxt}>Pause</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (isRecordLoading || !isRecording) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isRecordLoading || !isRecording) && styles.btnDisabled,
+            ]}
             onPress={() => soundRef.current.resumeRecorder()}
             disabled={isRecordLoading || !isRecording}
           >
             <Text style={styles.btnTxt}>Resume</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (!isRecording || isStopLoading) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (!isRecording || isStopLoading) && styles.btnDisabled,
+            ]}
             onPress={onStopRecord}
             disabled={!isRecording || isStopLoading}
           >
@@ -227,9 +246,7 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
               style={[
                 styles.androidProgressFill,
                 {
-                  width: `${
-                    (playbackPosition / Math.max(1, duration)) * 100
-                  }%`,
+                  width: `${(playbackPosition / Math.max(1, duration)) * 100}%`,
                 },
               ]}
             />
@@ -237,7 +254,10 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
         )}
         <View style={styles.row}>
           <TouchableOpacity
-            style={[styles.btn, (isPlayLoading || isPlaying) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isPlayLoading || isPlaying) && styles.btnDisabled,
+            ]}
             onPress={onStartPlay}
             disabled={isPlayLoading || isPlaying}
           >
@@ -255,7 +275,10 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (isPlayLoading || !isPlaying) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isPlayLoading || !isPlaying) && styles.btnDisabled,
+            ]}
             onPress={async () => {
               try {
                 await soundRef.current.pausePlayer();
@@ -267,7 +290,10 @@ export function SoundScreen({ onBack }: { onBack: () => void }) {
             <Text style={styles.btnTxt}>Pause</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (isPlayLoading || isPlaying) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isPlayLoading || isPlaying) && styles.btnDisabled,
+            ]}
             onPress={async () => {
               try {
                 await soundRef.current.resumePlayer();

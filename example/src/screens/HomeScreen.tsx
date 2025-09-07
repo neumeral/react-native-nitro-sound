@@ -11,17 +11,16 @@ export type ScreenKey =
   | 'SoundHook'
   | 'SoundHookStates'
   | 'SoundDirect'
-  | 'RapidSwitch';
+  | 'RapidSwitch'
+  | 'Compatibility';
 
 export function HomeScreen({
   onNavigate,
 }: {
   onNavigate: (k: ScreenKey) => void;
 }) {
-  // Use a web-friendly asset path when running on web
-  const logoSource = {
-    uri: 'https://github.com/user-attachments/assets/12d1d4da-18e1-4911-8e13-f4ce7806b2d8',
-  };
+  // Use local bundled asset for the logo
+  const logoSource = require('../../public/Logo.png');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -61,6 +60,16 @@ export function HomeScreen({
       >
         <Text style={styles.itemTitle}>Rapid Switch Test</Text>
         <Text style={styles.itemDesc}>Switch multiple URLs quickly</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => onNavigate('Compatibility')}
+      >
+        <Text style={styles.itemTitle}>Compatibility: react-native-video</Text>
+        <Text style={styles.itemDesc}>
+          Mount Video and start recorder to reproduce iOS issue
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );

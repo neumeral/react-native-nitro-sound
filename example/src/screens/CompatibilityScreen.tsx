@@ -4,13 +4,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Platform,
   PermissionsAndroid,
+  Switch,
   ScrollView,
+  Alert,
   ActivityIndicator,
 } from 'react-native';
-import Slider from '@react-native-community/slider';
+import Video, { type VideoRef } from 'react-native-video';
 import {
   useSound,
   AudioEncoderAndroidType,
@@ -18,21 +19,24 @@ import {
   AVEncoderAudioQualityIOSType,
 } from '../../../src';
 
-export function SoundHookScreen({ onBack }: { onBack: () => void }) {
-  const [recordingPath, setRecordingPath] = useState('');
-  const [volume, setVolume] = useState(1.0);
-  const [speed, setSpeed] = useState(1.0);
+export function CompatibilityScreen({ onBack }: { onBack: () => void }) {
+  const videoRef = useRef<VideoRef | null>(null);
+  const [mountVideo, setMountVideo] = useState(true);
+  const [disableVideoAudioSession, setDisableVideoAudioSession] =
+    useState(false);
+  const [paused, setPaused] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingPath, setRecordingPath] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [playbackPosition, setPlaybackPosition] = useState(0);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [videoPosition, setVideoPosition] = useState(0);
+  const [recordError, setRecordError] = useState<string | null>(null);
   const [recordPosition, setRecordPosition] = useState(0);
   const [isRecordLoading, setIsRecordLoading] = useState(false);
   const [isStopLoading, setIsStopLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Loading...');
-  const [isPlayLoading, setIsPlayLoading] = useState(false);
-
-  const lastEnded = useRef(false);
 
   const {
     startRecorder,
@@ -43,28 +47,15 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
     pausePlayer,
     resumePlayer,
     stopPlayer,
-    seekToPlayer,
-    setVolume: setVolumeApi,
-    setPlaybackSpeed: setPlaybackSpeedApi,
     mmssss,
   } = useSound({
     onRecord: (e) => {
-      setIsRecording(e.isRecording ?? true);
+      setIsRecording(e.isRecording ?? false);
       setRecordPosition(e.currentPosition ?? 0);
     },
     onPlayback: (e) => {
       setDuration(e.duration);
       setPlaybackPosition(e.currentPosition);
-      const ended =
-        e.ended || (e.duration > 0 && e.currentPosition >= e.duration);
-      if (ended && !lastEnded.current) {
-        lastEnded.current = true;
-        setIsPlaying(false);
-        setPlaybackPosition(e.duration);
-      }
-      if (!ended) {
-        lastEnded.current = false;
-      }
     },
     onPlaybackEnd: (e) => {
       setIsPlaying(false);
@@ -93,63 +84,60 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
     );
   };
 
-  const onStartRecord = async () => {
-    if (!(await requestPermissions())) {
-      Alert.alert('Permission required', 'Microphone permission needed');
-      return;
-    }
-    const audioSet = {
-      AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
-      AudioSourceAndroid: AudioSourceAndroidType.MIC,
-      AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-      AVNumberOfChannelsKeyIOS: 2,
-      AVFormatIDKeyIOS: 'aac' as const,
-      AVModeIOS: 'measurement' as const,
-    };
+  const handleStartRecord = async () => {
+    setRecordError(null);
     try {
+      if (!(await requestPermissions())) {
+        Alert.alert('Permission required', 'Microphone permission needed');
+        return;
+      }
+      const audioSet = {
+        AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+        AudioSourceAndroid: AudioSourceAndroidType.MIC,
+        AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+        AVNumberOfChannelsKeyIOS: 2,
+        AVFormatIDKeyIOS: 'aac' as const,
+        AVModeIOS: 'measurement' as const,
+      };
       setIsRecordLoading(true);
       setLoadingMessage('Loading...');
-      const uri = await startRecorder(undefined, audioSet, true);
-      setRecordingPath(uri);
+      await startRecorder(undefined, audioSet, true);
+      // Enable playing only after recording is finished (on stop)
+      setRecordingPath('');
       setIsRecording(true);
       setRecordPosition(0);
     } catch (e) {
-      Alert.alert('Start record error', String(e));
+      const msg = String(e);
+      setRecordError(msg);
+      Alert.alert('Start record error', msg);
     } finally {
       setIsRecordLoading(false);
     }
   };
 
-  const onStartPlay = async () => {
-    try {
-      setIsPlayLoading(true);
-      const pathToPlay =
-        Platform.OS === 'web' && recordingPath === 'recording_in_progress'
-          ? undefined
-          : recordingPath || undefined;
-      await startPlayer(pathToPlay);
-      await setVolumeApi(volume);
-      await setPlaybackSpeedApi(speed);
-      setIsPlaying(true);
-    } catch (e) {
-      Alert.alert('Play error', String(e));
-    } finally {
-      setIsPlayLoading(false);
-    }
-  };
-
-  const onStopRecordPress = async () => {
+  const handleStopRecord = async () => {
     try {
       setIsStopLoading(true);
       const path = await stopRecorder();
-      setIsRecording(false);
-      if (Platform.OS === 'android') {
-        Alert.alert('Recording Stopped', `File saved at:\n${path}`);
-      }
+      setRecordingPath(path);
     } catch (e) {
       Alert.alert('Stop record error', String(e));
     } finally {
+      setIsRecording(false);
       setIsStopLoading(false);
+    }
+  };
+
+  const handleStartPlayRecording = async () => {
+    if (!recordingPath) {
+      Alert.alert('No recording', 'Record something first.');
+      return;
+    }
+    try {
+      await startPlayer(recordingPath);
+      setIsPlaying(true);
+    } catch (e) {
+      Alert.alert('Play error', String(e));
     }
   };
 
@@ -159,18 +147,97 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
           <Text style={styles.backTxt}>{'< Back'}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>NitroSound with Hook</Text>
+        <Text style={styles.title}>Compatibility: RN Video</Text>
         <View style={styles.spacer} />
       </View>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.sectionTitle}>Recorder</Text>
+        <Text style={styles.sectionTitle}>Video (react-native-video)</Text>
+
+        {mountVideo ? (
+          <View style={styles.videoWrap}>
+            <Video
+              ref={(r) => {
+                videoRef.current = r;
+              }}
+              source={require('../../public/veo.mp4')}
+              style={styles.video}
+              resizeMode="contain"
+              paused={paused}
+              repeat={false}
+              disableFocus={false}
+              disableAudioSessionManagement={disableVideoAudioSession}
+              controls
+              onLoad={(meta) => {
+                setVideoDuration(meta.duration ?? 0);
+              }}
+              onProgress={(p) => {
+                setVideoPosition(p.currentTime ?? 0);
+              }}
+              onEnd={() => {
+                setPaused(true);
+              }}
+            />
+            <View style={styles.row}>
+              <TouchableOpacity
+                style={[styles.btn, !paused && styles.btnDisabled]}
+                onPress={() => setPaused(false)}
+                disabled={!paused}
+              >
+                <Text style={styles.btnTxt}>Play</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.btn, paused && styles.btnDisabled]}
+                onPress={() => setPaused(true)}
+                disabled={paused}
+              >
+                <Text style={styles.btnTxt}>Pause</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => {
+                  videoRef.current?.seek(0);
+                  setPaused(false);
+                }}
+              >
+                <Text style={styles.btnTxt}>Restart</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.small}>
+              {mmssss(Math.floor(videoPosition * 1000))} /{' '}
+              {mmssss(Math.floor(videoDuration * 1000))}
+            </Text>
+            <Text style={styles.note}>
+              To reproduce the iOS session issue, keep this mode on
+              (react-native-video) and try recording.
+            </Text>
+          </View>
+        ) : null}
+        <View style={styles.rowBetween}>
+          <Text style={styles.small}>Mount Video</Text>
+          <Switch value={mountVideo} onValueChange={setMountVideo} />
+        </View>
+        <View style={styles.rowBetween}>
+          <Text style={styles.small}>disableAudioSessionManagement</Text>
+          <Switch
+            value={disableVideoAudioSession}
+            onValueChange={setDisableVideoAudioSession}
+          />
+        </View>
+        <View style={styles.rowBetween}>
+          <Text style={styles.small}>Paused</Text>
+          <Switch value={paused} onValueChange={setPaused} />
+        </View>
+
+        <View style={styles.sep} />
+
+        <Text style={styles.sectionTitle}>Recorder (Nitro Sound)</Text>
         <View style={styles.row}>
           <TouchableOpacity
             style={[
               styles.btn,
               (isRecordLoading || isRecording) && styles.btnDisabled,
             ]}
-            onPress={onStartRecord}
+            onPress={handleStartRecord}
             disabled={isRecordLoading || isRecording}
           >
             {isRecordLoading ? (
@@ -191,7 +258,7 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
               styles.btn,
               (isRecordLoading || !isRecording) && styles.btnDisabled,
             ]}
-            onPress={pauseRecorder}
+            onPress={() => pauseRecorder().catch(() => {})}
             disabled={isRecordLoading || !isRecording}
           >
             <Text style={styles.btnTxt}>Pause</Text>
@@ -201,7 +268,7 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
               styles.btn,
               (isRecordLoading || !isRecording) && styles.btnDisabled,
             ]}
-            onPress={resumeRecorder}
+            onPress={() => resumeRecorder().catch(() => {})}
             disabled={isRecordLoading || !isRecording}
           >
             <Text style={styles.btnTxt}>Resume</Text>
@@ -211,7 +278,7 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
               styles.btn,
               (!isRecording || isStopLoading) && styles.btnDisabled,
             ]}
-            onPress={onStopRecordPress}
+            onPress={handleStopRecord}
             disabled={!isRecording || isStopLoading}
           >
             <View style={styles.btnContent}>
@@ -228,6 +295,7 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
             </View>
           </TouchableOpacity>
         </View>
+
         <Text style={styles.small}>
           Recording: {isRecording ? 'Yes' : 'No'}
         </Text>
@@ -235,90 +303,61 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
           Record Time: {mmssss(Math.floor(recordPosition))}
         </Text>
 
+        {recordError ? (
+          <Text style={styles.error}>Last error: {recordError}</Text>
+        ) : (
+          <Text style={styles.small}>
+            Tip: On iOS, mount the Video, keep it paused, then try Start Record.
+            Toggle disableAudioSessionManagement to compare.
+          </Text>
+        )}
+
         <View style={styles.sep} />
-        <Text style={styles.sectionTitle}>Player</Text>
-        <Text style={styles.small}>Playing: {isPlaying ? 'Yes' : 'No'}</Text>
+        <Text style={styles.sectionTitle}>Player (Nitro Sound)</Text>
         <Text style={styles.small}>
           {mmssss(Math.floor(playbackPosition))} /{' '}
           {mmssss(Math.floor(duration))}
         </Text>
-        {Platform.OS === 'ios' ? (
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={Math.max(1, duration)}
-            value={playbackPosition}
-            onSlidingComplete={(v) => seekToPlayer(v)}
-          />
-        ) : (
-          <View style={styles.androidProgressBar}>
-            <View
-              style={[
-                styles.androidProgressFill,
-                {
-                  width: `${(playbackPosition / Math.max(1, duration)) * 100}%`,
-                },
-              ]}
-            />
-          </View>
-        )}
         <View style={styles.row}>
           <TouchableOpacity
             style={[
               styles.btn,
-              (isPlayLoading || isPlaying) && styles.btnDisabled,
+              (!recordingPath || isPlaying || isRecording) &&
+                styles.btnDisabled,
             ]}
-            onPress={onStartPlay}
-            disabled={isPlayLoading || isPlaying}
+            onPress={handleStartPlayRecording}
+            disabled={!recordingPath || isPlaying || isRecording}
           >
-            {isPlayLoading ? (
-              <View style={styles.btnContent}>
-                <ActivityIndicator
-                  size="small"
-                  color="#fff"
-                  style={styles.spinner}
-                />
-                <Text style={styles.btnTxt}>Loading...</Text>
-              </View>
-            ) : (
-              <Text style={styles.btnTxt}>Play</Text>
-            )}
+            <Text style={styles.btnTxt}>Play</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.btn,
-              (isPlayLoading || !isPlaying) && styles.btnDisabled,
-            ]}
+            style={[styles.btn, !isPlaying && styles.btnDisabled]}
             onPress={async () => {
               try {
                 await pausePlayer();
                 setIsPlaying(false);
               } catch {}
             }}
-            disabled={isPlayLoading || !isPlaying}
+            disabled={!isPlaying}
           >
             <Text style={styles.btnTxt}>Pause</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.btn,
-              (isPlayLoading || isPlaying) && styles.btnDisabled,
-            ]}
+            style={[styles.btn, isPlaying && styles.btnDisabled]}
             onPress={async () => {
               try {
                 await resumePlayer();
                 setIsPlaying(true);
               } catch {}
             }}
-            disabled={isPlayLoading || isPlaying}
+            disabled={isPlaying}
           >
             <Text style={styles.btnTxt}>Resume</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.btn,
-              (isPlayLoading || (!isPlaying && playbackPosition === 0)) &&
-                styles.btnDisabled,
+              !isPlaying && playbackPosition === 0 && styles.btnDisabled,
             ]}
             onPress={async () => {
               try {
@@ -327,39 +366,11 @@ export function SoundHookScreen({ onBack }: { onBack: () => void }) {
                 setIsPlaying(false);
               }
             }}
-            disabled={isPlayLoading || (!isPlaying && playbackPosition === 0)}
+            disabled={!isPlaying && playbackPosition === 0}
           >
             <Text style={styles.btnTxt}>Stop</Text>
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.sectionTitle}>Volume</Text>
-        <Slider
-          style={styles.slider}
-          minimumValue={0}
-          maximumValue={1}
-          step={0.01}
-          value={volume}
-          onValueChange={(v) => setVolume(v)}
-          onSlidingComplete={(v) => setVolumeApi(v)}
-        />
-        <Text style={styles.small}>{Math.round(volume * 100)}%</Text>
-
-        <Text style={styles.sectionTitle}>Speed</Text>
-        <Slider
-          style={styles.slider}
-          minimumValue={0.5}
-          maximumValue={2}
-          step={0.1}
-          value={speed}
-          onValueChange={(v) => setSpeed(v)}
-          onSlidingComplete={(v) => setPlaybackSpeedApi(v)}
-        />
-        <Text style={styles.small}>{speed.toFixed(1)}x</Text>
-
-        {recordingPath ? (
-          <Text style={styles.path}>File: {recordingPath}</Text>
-        ) : null}
       </ScrollView>
     </View>
   );
@@ -379,8 +390,15 @@ const styles = StyleSheet.create({
   backBtn: { padding: 8 },
   backTxt: { color: '#007AFF' },
   title: { fontSize: 16, fontWeight: '600' },
+  spacer: { width: 60 },
   container: { padding: 16 },
   sectionTitle: { fontSize: 18, fontWeight: '600', marginTop: 8 },
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+  },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: 8 },
   btn: {
     backgroundColor: '#333',
@@ -396,21 +414,21 @@ const styles = StyleSheet.create({
   },
   spinner: { marginRight: 6 },
   btnTxt: { color: 'white' },
-  small: { fontSize: 12, color: '#555', marginBottom: 6 },
   sep: { height: 1, backgroundColor: '#eee', marginVertical: 16 },
-  slider: { width: '100%', height: 40 },
-  path: { marginTop: 10, fontSize: 12, color: '#444' },
-  spacer: { width: 60 },
-  androidProgressBar: {
+  videoWrap: {
     width: '100%',
-    height: 6,
-    backgroundColor: '#ddd',
-    borderRadius: 3,
-    marginVertical: 10,
+    aspectRatio: 16 / 9,
+    backgroundColor: '#000',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 8,
   },
-  androidProgressFill: {
-    height: 6,
-    backgroundColor: '#5f27cd',
-    borderRadius: 3,
+  video: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
   },
+  small: { fontSize: 12, color: '#555', marginTop: 6 },
+  error: { fontSize: 12, color: '#B00020', marginTop: 10 },
+  note: { fontSize: 12, color: '#666', marginTop: 8 },
 });

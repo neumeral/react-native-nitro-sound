@@ -115,19 +115,27 @@ export function SoundHookStatesScreen({ onBack }: { onBack: () => void }) {
           <Text style={styles.backTxt}>{'< Back'}</Text>
         </TouchableOpacity>
         <Text style={styles.title}>NitroSound with Hook and states</Text>
+        {/* eslint-disable-next-line react-native/no-inline-styles */}
         <View style={{ width: 60 }} />
       </View>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>Recorder</Text>
         <View style={styles.row}>
           <TouchableOpacity
-            style={[styles.btn, (isRecordLoading || state.isRecording) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (isRecordLoading || state.isRecording) && styles.btnDisabled,
+            ]}
             onPress={onStartRecord}
             disabled={isRecordLoading || state.isRecording}
           >
             {isRecordLoading ? (
               <View style={styles.btnContent}>
-                <ActivityIndicator size="small" color="#fff" style={styles.spinner} />
+                <ActivityIndicator
+                  size="small"
+                  color="#fff"
+                  style={styles.spinner}
+                />
                 <Text style={styles.btnTxt}>{loadingMessage}</Text>
               </View>
             ) : (
@@ -155,7 +163,10 @@ export function SoundHookStatesScreen({ onBack }: { onBack: () => void }) {
             <Text style={styles.btnTxt}>Resume</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.btn, (!state.isRecording || isStopLoading) && styles.btnDisabled]}
+            style={[
+              styles.btn,
+              (!state.isRecording || isStopLoading) && styles.btnDisabled,
+            ]}
             onPress={async () => {
               try {
                 setIsStopLoading(true);

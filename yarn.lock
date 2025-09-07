@@ -13714,6 +13714,7 @@ __metadata:
     react-native-builder-bob: ^0.40.12
     react-native-monorepo-config: ^0.1.9
     react-native-nitro-modules: ^0.29.3
+    react-native-video: ^6.16.1
     react-native-web: ^0.20.0
     url-loader: ^4.1.1
     webpack: ^5.100.2
@@ -13761,6 +13762,16 @@ __metadata:
     react-native-nitro-modules: "*"
   languageName: unknown
   linkType: soft
+
+"react-native-video@npm:^6.16.1":
+  version: 6.16.1
+  resolution: "react-native-video@npm:6.16.1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 40de297ed35527bf2cd77827c9842d51e84df78fbd0a7697235f8d0ca02de2b1a4562e9d3323391d514a9591a5078b10b26eac501ee7eb9a2a7c0c2ae45a90f5
+  languageName: node
+  linkType: hard
 
 "react-native-web@npm:^0.20.0":
   version: 0.20.0
