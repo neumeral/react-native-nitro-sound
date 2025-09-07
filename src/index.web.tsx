@@ -218,7 +218,9 @@ class SoundWebImpl implements SoundType {
       this.audio = null;
       return 'stopped';
     }
-    throw new Error('No active playback to stop');
+    // Align with native behavior: be idempotent and resolve even if nothing is playing
+    this.stopPlaybackProgress();
+    return 'stopped';
   }
 
   async pausePlayer(): Promise<string> {
@@ -466,3 +468,9 @@ const Sound: SoundType = new Proxy({} as SoundType, {
 export default Sound;
 export { Sound };
 export { useSound } from './useSound';
+export { useSoundWithStates } from './useSoundWithStates';
+export { useSoundRecorder, useAudioRecorder } from './useSoundRecorder';
+export {
+  useSoundRecorderWithStates,
+  useAudioRecorderWithStates,
+} from './useSoundRecorderWithStates';

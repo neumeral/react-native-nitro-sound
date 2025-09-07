@@ -9,7 +9,7 @@ import { CompatibilityScreen } from './screens/CompatibilityScreen';
 import {
   SafeAreaProvider,
   useSafeAreaContext,
-} from './safe-area/SafeAreaContext';
+} from './components/SafeAreaContext';
 
 function AppInner() {
   const [screen, setScreen] = useState<ScreenKey | 'Home'>('Home');

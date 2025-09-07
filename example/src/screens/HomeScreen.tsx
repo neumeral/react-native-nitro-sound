@@ -5,6 +5,7 @@ import {
   ScrollView,
   Image,
   View,
+  Platform,
 } from 'react-native';
 
 export type ScreenKey =
@@ -19,8 +20,12 @@ export function HomeScreen({
 }: {
   onNavigate: (k: ScreenKey) => void;
 }) {
-  // Use local bundled asset for the logo
-  const logoSource = require('../../public/Logo.png');
+  // Web: serve from /public directly to avoid bundling issues
+  // Native: require local asset
+  const logoSource =
+    Platform.OS === 'web'
+      ? { uri: 'Logo.png' } // relative path works on GitHub Pages under /<repo>/
+      : require('../../public/Logo.png');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -62,15 +67,20 @@ export function HomeScreen({
         <Text style={styles.itemDesc}>Switch multiple URLs quickly</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.item}
-        onPress={() => onNavigate('Compatibility')}
-      >
-        <Text style={styles.itemTitle}>Compatibility: react-native-video</Text>
-        <Text style={styles.itemDesc}>
-          Mount Video and start recorder to reproduce iOS issue
-        </Text>
-      </TouchableOpacity>
+      {Platform.OS !== 'web' && (
+        // Note: react-native-video is not supported on web; hide this menu on web
+        <TouchableOpacity
+          style={styles.item}
+          onPress={() => onNavigate('Compatibility')}
+        >
+          <Text style={styles.itemTitle}>
+            Compatibility: react-native-video
+          </Text>
+          <Text style={styles.itemDesc}>
+            Mount Video and start recorder to reproduce iOS issue
+          </Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 }

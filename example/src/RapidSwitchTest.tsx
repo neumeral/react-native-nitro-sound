@@ -32,9 +32,8 @@ export const RapidSwitchTest: React.FC = () => {
   useEffect(() => {
     const sound = soundRef.current;
     return () => {
-      try {
-        sound.stopPlayer();
-      } catch {}
+      // Ensure async cleanups don't throw unhandled rejections in web
+      sound.stopPlayer().catch(() => {});
       try {
         sound.dispose();
       } catch {}

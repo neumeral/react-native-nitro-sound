@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import Video, { type VideoRef } from 'react-native-video';
+import VideoSection from '../components/VideoSection';
 import {
   useSound,
   AudioEncoderAndroidType,
@@ -20,7 +20,6 @@ import {
 } from '../../../src';
 
 export function CompatibilityScreen({ onBack }: { onBack: () => void }) {
-  const videoRef = useRef<VideoRef | null>(null);
   const [mountVideo, setMountVideo] = useState(true);
   const [disableVideoAudioSession, setDisableVideoAudioSession] =
     useState(false);
@@ -30,8 +29,7 @@ export function CompatibilityScreen({ onBack }: { onBack: () => void }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
   const [playbackPosition, setPlaybackPosition] = useState(0);
-  const [videoDuration, setVideoDuration] = useState(0);
-  const [videoPosition, setVideoPosition] = useState(0);
+  // VideoSection handles its own duration/position internally (native only)
   const [recordError, setRecordError] = useState<string | null>(null);
   const [recordPosition, setRecordPosition] = useState(0);
   const [isRecordLoading, setIsRecordLoading] = useState(false);
@@ -153,65 +151,12 @@ export function CompatibilityScreen({ onBack }: { onBack: () => void }) {
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.sectionTitle}>Video (react-native-video)</Text>
 
-        {mountVideo ? (
-          <View style={styles.videoWrap}>
-            <Video
-              ref={(r) => {
-                videoRef.current = r;
-              }}
-              source={require('../../public/veo.mp4')}
-              style={styles.video}
-              resizeMode="contain"
-              paused={paused}
-              repeat={false}
-              disableFocus={false}
-              disableAudioSessionManagement={disableVideoAudioSession}
-              controls
-              onLoad={(meta) => {
-                setVideoDuration(meta.duration ?? 0);
-              }}
-              onProgress={(p) => {
-                setVideoPosition(p.currentTime ?? 0);
-              }}
-              onEnd={() => {
-                setPaused(true);
-              }}
-            />
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={[styles.btn, !paused && styles.btnDisabled]}
-                onPress={() => setPaused(false)}
-                disabled={!paused}
-              >
-                <Text style={styles.btnTxt}>Play</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.btn, paused && styles.btnDisabled]}
-                onPress={() => setPaused(true)}
-                disabled={paused}
-              >
-                <Text style={styles.btnTxt}>Pause</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.btn}
-                onPress={() => {
-                  videoRef.current?.seek(0);
-                  setPaused(false);
-                }}
-              >
-                <Text style={styles.btnTxt}>Restart</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.small}>
-              {mmssss(Math.floor(videoPosition * 1000))} /{' '}
-              {mmssss(Math.floor(videoDuration * 1000))}
-            </Text>
-            <Text style={styles.note}>
-              To reproduce the iOS session issue, keep this mode on
-              (react-native-video) and try recording.
-            </Text>
-          </View>
-        ) : null}
+        <VideoSection
+          mountVideo={mountVideo}
+          paused={paused}
+          onPausedChange={setPaused}
+          disableAudioSessionManagement={disableVideoAudioSession}
+        />
         <View style={styles.rowBetween}>
           <Text style={styles.small}>Mount Video</Text>
           <Switch value={mountVideo} onValueChange={setMountVideo} />
@@ -415,19 +360,7 @@ const styles = StyleSheet.create({
   spinner: { marginRight: 6 },
   btnTxt: { color: 'white' },
   sep: { height: 1, backgroundColor: '#eee', marginVertical: 16 },
-  videoWrap: {
-    width: '100%',
-    aspectRatio: 16 / 9,
-    backgroundColor: '#000',
-    borderRadius: 8,
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  video: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'transparent',
-  },
+  // Video styles moved to VideoSection.native.tsx
   small: { fontSize: 12, color: '#555', marginTop: 6 },
   error: { fontSize: 12, color: '#B00020', marginTop: 10 },
   note: { fontSize: 12, color: '#666', marginTop: 8 },
