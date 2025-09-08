@@ -127,20 +127,12 @@ class HybridSound: HybridSoundSpec {
                 
                 // Ensure audio session is active before recording
                 do {
-                    // Try to activate the session with notification to other apps
-                    try self.recordingSession?.setActive(true, options: .notifyOthersOnDeactivation)
-                    print("🎙️ Audio session activated with notification")
-                } catch {
-                    print("🎙️ Warning: Could not activate session with notification: \(error)")
-                    // Try without notification option as fallback, but fail explicitly if it also errors
-                    do {
-                        try self.recordingSession?.setActive(true)
-                        print("🎙️ Audio session activated without notification (fallback)")
-                    } catch let fallbackError {
-                        print("🎙️ Error: Fallback audio session activation failed: \(fallbackError)")
-                        promise.reject(withError: RuntimeError.error(withMessage: "Failed to activate audio session: \(fallbackError.localizedDescription)"))
-                        return
-                    }
+                    try self.recordingSession?.setActive(true)
+                    print("🎙️ Audio session activated")
+                } catch let error {
+                    print("🎙️ Error: Audio session activation failed: \(error)")
+                    promise.reject(withError: RuntimeError.error(withMessage: "Failed to activate audio session: \(error.localizedDescription)"))
+                    return
                 }
                 
                 // Small delay to ensure session is fully active
@@ -162,6 +154,61 @@ class HybridSound: HybridSoundSpec {
                         print("🎙️ Recording attempt \(recordAttempts)/\(maxAttempts)")
                         
                         func configureAndStartRecording() {
+                            // Check if session is still valid and not hijacked right before recording
+                            let currentCategory = audioSession.category
+                            let currentMode = audioSession.mode
+                            
+                            // Check if session is corrupted (empty category/mode)
+                            if currentCategory.rawValue.isEmpty || currentMode.rawValue.isEmpty {
+                                print("🎙️ ⚠️ Audio session is corrupted, attempting to recover...")
+                                // Try to recover the session
+                                do {
+                                    // Reuse existing session instance (singleton)
+                                    let sessionMode = audioSets?.AVModeIOS.map(self.getAudioSessionMode) ?? .default
+                                    try audioSession.setCategory(.playAndRecord, mode: sessionMode, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
+                                    try audioSession.setActive(true, options: [])
+                                    print("🎙️ ✅ Audio session recovered successfully")
+                                } catch {
+                                    print("🎙️ ❌ Failed to recover audio session: \(error)")
+                                    promise.reject(withError: RuntimeError.error(withMessage: "Failed to recover corrupted audio session: \(error.localizedDescription)"))
+                                    return
+                                }
+                            } else if currentCategory != .playAndRecord {
+                                print("🎙️ ⚠️ Session still hijacked before recording attempt: \(currentCategory)")
+                                // Force immediate session takeover
+                                do {
+                                    let sessionMode = audioSets?.AVModeIOS.map(self.getAudioSessionMode) ?? .default
+                                    try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+                                    try audioSession.setCategory(.playAndRecord, mode: sessionMode, options: [.defaultToSpeaker, .allowBluetooth])
+                                    try audioSession.setActive(true)
+                                    print("🎙️ ✅ Forced immediate session takeover")
+                                } catch {
+                                    print("🎙️ ❌ Failed immediate session takeover: \(error)")
+                                    promise.reject(withError: RuntimeError.error(withMessage: "Failed to recover hijacked audio session: \(error.localizedDescription)"))
+                                    return
+                                }
+                            }
+                            
+                            // If session was changed, recreate the recorder to ensure compatibility
+                            if currentCategory != .playAndRecord || recordAttempts > 1 {
+                                print("🎙️ ⚠️ Session was changed, recreating recorder for compatibility...")
+                                do {
+                                    // Recreate the recorder with current session state
+                                    let settings = self.getAudioSettings(audioSets: audioSets)
+                                    self.audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
+                                    self.audioRecorder?.isMeteringEnabled = meteringEnabled ?? false
+                                    let prepared = self.audioRecorder?.prepareToRecord() ?? false
+                                    print("🎙️ ✅ Recorder recreated and prepared: \(prepared)")
+                                    if !prepared {
+                                        throw NSError(domain: "AudioRecorder", code: -3, userInfo: [NSLocalizedDescriptionKey: "Failed to prepare recreated recorder"])
+                                    }
+                                } catch {
+                                    print("🎙️ ❌ Failed to recreate recorder: \(error)")
+                                    promise.reject(withError: RuntimeError.error(withMessage: "Failed to recreate recorder: \(error.localizedDescription)"))
+                                    return
+                                }
+                            }
+                            
                             let started = self.audioRecorder?.record() ?? false
                             print("🎙️ Recording started: \(started)")
                             
@@ -176,11 +223,11 @@ class HybridSound: HybridSoundSpec {
                                     try audioSession.setActive(false)
                                     
                                     // Re-set the category to ensure it's correct
-                                    let sessionMode = self.audioRecorder?.isMeteringEnabled == true ? AVAudioSession.Mode.measurement : AVAudioSession.Mode.default
+                                    let sessionMode = audioSets?.AVModeIOS.map(self.getAudioSessionMode) ?? .default
                                     try audioSession.setCategory(.playAndRecord, 
                                                                mode: sessionMode,
                                                                options: [.defaultToSpeaker, .allowBluetooth])
-                                    try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+                                    try audioSession.setActive(true)
                                     print("🎙️ Audio session fully reset for retry")
                                 } catch {
                                     print("🎙️ Warning: Could not reset session: \(error)")
@@ -237,7 +284,7 @@ class HybridSound: HybridSoundSpec {
                                 // Step 2: Configure with mixing after delay
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                                     do {
-                                        let sessionMode = AVAudioSession.Mode.default
+                                        let sessionMode = audioSets?.AVModeIOS.map(self.getAudioSessionMode) ?? .default
                                         try audioSession.setCategory(.playAndRecord,
                                                                    mode: sessionMode,
                                                                    options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
@@ -249,11 +296,11 @@ class HybridSound: HybridSoundSpec {
                                     // Step 3: Configure exclusive access after another delay
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                                         do {
-                                            let sessionMode = AVAudioSession.Mode.default
+                                            let sessionMode = audioSets?.AVModeIOS.map(self.getAudioSessionMode) ?? .default
                                             try audioSession.setCategory(.playAndRecord,
                                                                        mode: sessionMode,
                                                                        options: [.defaultToSpeaker, .allowBluetooth])
-                                            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+                                            try audioSession.setActive(true)
                                             print("🎙️ Audio session corrected and exclusively activated")
                                         } catch let error as NSError {
                                             print("🎙️ Error setting exclusive category: \(error)")
