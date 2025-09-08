@@ -11,6 +11,8 @@ body:
 
         **Please fill the following carefully before opening a new issue ❗**
         *(Your issue may be closed if it doesn't provide the required pieces of information)*
+        
+        🚀 We frequently release fixes. Before opening an issue, please update to the latest version of `react-native-nitro-sound` and verify the problem still occurs. You can check recent releases here: https://github.com/hyochan/react-native-nitro-sound/releases
   - type: checkboxes
     attributes:
       label: Before submitting a new issue
