@@ -32,6 +32,9 @@ android {
         abiFilters (*reactNativeArchitectures())
       }
     }
+
+    // Ship ProGuard/R8 consumer rules so apps don't need manual keeps
+    consumerProguardFiles "consumer-rules.pro"
   }
 
   externalNativeBuild {
@@ -40,13 +43,26 @@ android {
     }
   }
 
-  // Do not exclude RN/Hermes JNI libs from the library AAR —
-  // let the app control final packaging to avoid missing/duplicate symbols.
+  // Prevent bundling RN core JNI libs into this AAR to avoid duplicates
+  // in consuming apps (e.g., libjsi.so, libreactnative.so). These are
+  // provided by React Native itself and should not be packaged here.
   packagingOptions {
-    excludes = [
-            "META-INF",
-            "META-INF/**"
-    ]
+    // New AGP DSL: configure resources + jniLibs explicitly
+    resources {
+      excludes += [
+              "META-INF",
+              "META-INF/**"
+      ]
+    }
+    jniLibs {
+      excludes += [
+              "**/libjsi.so",
+              "**/libreactnative.so",
+              "**/libfbjni.so",
+              "**/libc++_shared.so",
+              "**/libNitroModules.so"
+      ]
+    }
   }
 
   buildFeatures {
