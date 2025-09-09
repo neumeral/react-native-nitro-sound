@@ -12,11 +12,7 @@ const defaultInsets: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 
 const SafeAreaContext = createContext<EdgeInsets>(defaultInsets);
 
-export function SafeAreaProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function SafeAreaProvider({ children }: { children: React.ReactNode }) {
   // Lightweight Android-only safe area: use status bar height for top inset.
   // Avoids pulling in react-native-safe-area-context to keep New Arch stable.
   const insets = useMemo<EdgeInsets>(() => {

@@ -68,11 +68,12 @@ export function useSoundWithStates(
 
   // Wrap base controls to keep local state consistent even if native doesn't emit an event.
   const startPlayer: UseSound['startPlayer'] = useMemo(
-    () => async (...args) => {
-      const res = await base.startPlayer(...args);
-      setState((s) => ({ ...s, isPlaying: true }));
-      return res;
-    },
+    () =>
+      async (...args) => {
+        const res = await base.startPlayer(...args);
+        setState((s) => ({ ...s, isPlaying: true }));
+        return res;
+      },
     [base]
   );
   const pausePlayer: UseSound['pausePlayer'] = useMemo(
@@ -122,6 +123,14 @@ export function useSoundWithStates(
       seekToPlayer,
       state,
     }),
-    [base, startPlayer, pausePlayer, resumePlayer, stopPlayer, seekToPlayer, state]
+    [
+      base,
+      startPlayer,
+      pausePlayer,
+      resumePlayer,
+      stopPlayer,
+      seekToPlayer,
+      state,
+    ]
   );
 }
