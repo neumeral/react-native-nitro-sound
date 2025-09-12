@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-sound",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "React Native Sound Module 🔥 by Nitro",
   "homepage": "https://github.com/hyochan/react-native-nitro-sound",
   "main": "./lib/module/index.js",
@@ -98,7 +98,7 @@
     "react-native-nitro-modules": "^0.29.3",
     "release-it": "^17.10.0",
     "turbo": "^1.10.7",
-    "typescript": "^5.8.3"
+    "typescript": "~5.5.4"
   },
   "peerDependencies": {
     "react": "*",
