@@ -193,20 +193,28 @@ class HybridSound : HybridSoundSpec() {
                 }
                 setAudioEncoder(audioEncoder)
 
-                // Set audio sampling rate
-                audioSets?.AudioSamplingRate?.let {
-                    setAudioSamplingRate(it.toInt())
-                }
+                // Apply sane defaults based on AudioQuality when explicit values are missing
+                // Default to HIGH if not provided
+                val audioQuality = audioSets?.AudioQuality ?: AudioQualityType.HIGH
 
-                // Set audio channels
-                audioSets?.AudioChannels?.let {
-                    setAudioChannels(it.toInt())
-                }
+                // Define quality presets to avoid repetition
+                data class QualitySettings(val samplingRate: Int, val channels: Int, val bitrate: Int)
+                val presets = mapOf(
+                    AudioQualityType.LOW to QualitySettings(22050, 1, 64000),
+                    AudioQualityType.MEDIUM to QualitySettings(44100, 1, 128000),
+                    AudioQualityType.HIGH to QualitySettings(48000, 2, 192000)
+                )
+                val defaults = presets[audioQuality]
 
-                // Set audio encoding bit rate
-                audioSets?.AudioEncodingBitRate?.let {
-                    setAudioEncodingBitRate(it.toInt())
-                }
+                // Apply settings with explicit overrides taking precedence
+                val samplingRate = audioSets?.AudioSamplingRate?.toInt() ?: defaults?.samplingRate
+                samplingRate?.let { setAudioSamplingRate(it) }
+
+                val channels = audioSets?.AudioChannels?.toInt() ?: defaults?.channels
+                channels?.let { setAudioChannels(it) }
+
+                val bitrate = audioSets?.AudioEncodingBitRate?.toInt() ?: defaults?.bitrate
+                bitrate?.let { setAudioEncodingBitRate(it) }
 
                 // Set output file
                 setOutputFile(filePath)
