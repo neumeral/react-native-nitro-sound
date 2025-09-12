@@ -28,8 +28,9 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "SWIFT_VERSION" => "5.0",
     "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited)",
-    # Enable library evolution to avoid certain Swift 6 IRGen issues
-    "BUILD_LIBRARY_FOR_DISTRIBUTION" => "YES",
+    # Allow opting in to library evolution from environment (defaults to NO)
+    "NITRO_LIBLEVOLUTION" => "NO",
+    "BUILD_LIBRARY_FOR_DISTRIBUTION" => "$(NITRO_LIBLEVOLUTION)",
     "DEFINES_MODULE" => "YES",
     # Favor whole-module to avoid per-file IRGen edge-cases
     "SWIFT_COMPILATION_MODE" => "wholemodule",
