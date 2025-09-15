@@ -146,7 +146,7 @@ After installing the packages, follow these steps:
    };
    ```
 
-> **Note**: The `nitro-codegen` command is already run during the library's build process. You don't need to run it in your application.
+> **Note**: The `nitrogen` command is already run during the library's build process. You don't need to run it in your application.
 
 ## Platform-specific Configuration
 
@@ -689,7 +689,7 @@ If you encounter this error when trying to record on iOS:
 
 ### Common Issues
 
-- **"nitro-codegen" command not found**: This command is only needed when developing the library itself, not when using it in your app.
+- **"nitrogen" command not found**: This command is only needed when developing the library itself, not when using it in your app.
 - **Module not found errors**: Make sure to run `pod install` after installing the package.
 - **Android build issues**: Ensure your `minSdkVersion` is 24 or higher in `android/build.gradle`.
   - If you see `:react-native:generateCodegenSchemaFromJavaScript` failing, this comes from RN's Gradle plugin (not Nitro). Ensure RN >= 0.79 (0.81 recommended) and JDK 17, then align and clean:

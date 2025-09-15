@@ -37,7 +37,7 @@ jobs:
         echo "Updated package.json to version ${{ github.event.inputs.version }}"
     
     - name: Generate NitroModule bindings
-      run: yarn nitro-codegen
+      run: yarn nitrogen
     
     - name: Build package
       run: yarn prepare

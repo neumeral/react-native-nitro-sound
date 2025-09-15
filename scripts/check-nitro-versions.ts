@@ -17,15 +17,14 @@ const examplePackageJson: PackageJson = JSON.parse(
 
 const rootNitroVersion =
   rootPackageJson.devDependencies?.['react-native-nitro-modules'];
-const rootNitroCodegenVersion =
-  rootPackageJson.devDependencies?.['nitro-codegen'];
+const rootNitroCodegenVersion = rootPackageJson.devDependencies?.nitrogen;
 const exampleNitroVersion =
   examplePackageJson.dependencies?.['react-native-nitro-modules'];
 
 console.log('🔍 Checking Nitro Modules versions...');
 console.log(`   Root package.json:`);
 console.log(`     - react-native-nitro-modules: ${rootNitroVersion}`);
-console.log(`     - nitro-codegen: ${rootNitroCodegenVersion}`);
+console.log(`     - nitrogen: ${rootNitroCodegenVersion}`);
 console.log(`   Example package.json:`);
 console.log(`     - react-native-nitro-modules: ${exampleNitroVersion}`);
 
@@ -66,7 +65,7 @@ if (rootNitroNormalized !== exampleNitroNormalized) {
 const rootCodegenNormalized = normalizeVersion(rootNitroCodegenVersion);
 if (rootCodegenNormalized && rootNitroNormalized !== rootCodegenNormalized) {
   console.warn(
-    '\n⚠️  Warning: nitro-codegen version differs from react-native-nitro-modules'
+    '\n⚠️  Warning: nitrogen version differs from react-native-nitro-modules'
   );
   console.warn(`   Consider aligning both to the same version.`);
 }
