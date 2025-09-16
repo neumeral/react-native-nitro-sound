@@ -13,6 +13,8 @@
 [![Platform - Android](https://img.shields.io/badge/platform-Android-green.svg?style=flat-square&logo=android&logoColor=white)](https://developer.android.com/)
 [![Platform - Web](https://img.shields.io/badge/platform-Web-orange.svg?style=flat-square&logo=googlechrome&logoColor=white)](https://reactnative.dev/docs/react-native-web)
 
+> ℹ️ **Swift 6 build warning**: If Xcode shows `function type mismatch … has_value` errors (see [#718](https://github.com/hyochan/react-native-nitro-sound/issues/718)), upgrade to Xcode 16.4 or newer. The workaround and cleanup steps are documented in the [FAQ](docs/FAQ.md#swift-6-compile-error-function-type-mismatch--has_value-718).
+
 <img src="https://github.com/user-attachments/assets/81ce7b7b-0b7d-413b-8a26-505372349ecb" width="70%" alt="Logo" />
 
 ## Legacy Package (react-native-audio-recorder-player)
