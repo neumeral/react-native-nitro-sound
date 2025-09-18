@@ -17,6 +17,7 @@ final class HybridSound: HybridSoundSpec_base, HybridSoundSpec_protocol {
     private var recordBackListener: ((RecordBackType) -> Void)?
     private var playBackListener: ((PlayBackType) -> Void)?
     private var playbackEndListener: ((PlaybackEndType) -> Void)?
+    private var didEmitPlaybackEnd = false
 
     private var subscriptionDuration: TimeInterval = 0.06
     private var playbackRate: Double = 1.0 // default 1x
@@ -816,157 +817,179 @@ final class HybridSound: HybridSoundSpec_base, HybridSoundSpec_protocol {
     // MARK: - Timer Management
 
     private func startRecordTimer() {
-        print("🎙️ Starting record timer with interval: \(self.subscriptionDuration)")
-        print("🎙️ Current thread: \(Thread.current)")
-        print("🎙️ Is main thread: \(Thread.isMainThread)")
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
 
-        // Ensure we're on the main thread for timer scheduling
-        DispatchQueue.main.async {
+            print("🎙️ Starting record timer with interval: \(self.subscriptionDuration)")
+            print("🎙️ Current thread: \(Thread.current)")
+            print("🎙️ Is main thread: \(Thread.isMainThread)")
+
             self.recordTimer = Timer.scheduledTimer(withTimeInterval: self.subscriptionDuration, repeats: true) { [weak self] _ in
-            guard let self = self else {
-                print("🎙️ Timer callback: self is nil")
-                return
+                guard let self = self else {
+                    print("🎙️ Timer callback: self is nil")
+                    return
+                }
+                guard let recorder = self.audioRecorder else {
+                    print("🎙️ Timer callback: audioRecorder is nil")
+                    return
+                }
+
+                print("🎙️ Timer callback: recorder exists, isRecording=\(recorder.isRecording)")
+
+                if !recorder.isRecording {
+                    print("🎙️ Timer callback: recorder is not recording anymore, stopping timer")
+                    self.stopRecordTimer()
+                    return
+                }
+
+                recorder.updateMeters()
+
+                let currentTime = recorder.currentTime * 1000 // Convert to ms
+                let currentMetering = recorder.averagePower(forChannel: 0)
+
+                print("🎙️ Timer callback: currentTime=\(currentTime)ms, metering=\(currentMetering)")
+
+                let recordBack = RecordBackType(
+                    isRecording: recorder.isRecording,
+                    currentPosition: currentTime,
+                    currentMetering: Double(currentMetering),
+                    recordSecs: currentTime
+                )
+
+                // Avoid interpolating RecordBackType directly to prevent Swift IRGen issues on Swift 6
+                print("🎙️ Timer callback: calling recordBackListener (time=\(currentTime)ms, metering=\(currentMetering))")
+
+                if let listener = self.recordBackListener {
+                    print("🎙️ Timer callback: recordBackListener exists, calling it")
+                    listener(recordBack)
+                } else {
+                    print("🎙️ Timer callback: recordBackListener is nil - not set up yet")
+                }
             }
-            guard let recorder = self.audioRecorder else {
-                print("🎙️ Timer callback: audioRecorder is nil")
-                return
-            }
 
-            print("🎙️ Timer callback: recorder exists, isRecording=\(recorder.isRecording)")
-
-            if !recorder.isRecording {
-                print("🎙️ Timer callback: recorder is not recording anymore, stopping timer")
-                self.stopRecordTimer()
-                return
-            }
-
-            recorder.updateMeters()
-
-            let currentTime = recorder.currentTime * 1000 // Convert to ms
-            let currentMetering = recorder.averagePower(forChannel: 0)
-
-            print("🎙️ Timer callback: currentTime=\(currentTime)ms, metering=\(currentMetering)")
-
-            let recordBack = RecordBackType(
-                isRecording: recorder.isRecording,
-                currentPosition: currentTime,
-                currentMetering: Double(currentMetering),
-                recordSecs: currentTime
-            )
-
-            // Avoid interpolating RecordBackType directly to prevent Swift IRGen issues on Swift 6
-            print("🎙️ Timer callback: calling recordBackListener (time=\(currentTime)ms, metering=\(currentMetering))")
-
-            if let listener = self.recordBackListener {
-                print("🎙️ Timer callback: recordBackListener exists, calling it")
-                listener(recordBack)
-            } else {
-                print("🎙️ Timer callback: recordBackListener is nil - not set up yet")
-            }
+            print("🎙️ Record timer created and scheduled on main thread")
         }
-        }
-        print("🎙️ Record timer created and scheduled on main thread")
     }
 
     private func stopRecordTimer() {
-        DispatchQueue.main.async {
-            self.recordTimer?.invalidate()
-            self.recordTimer = nil
-        }
+        stopTimer(for: \.recordTimer)
     }
 
     private func startPlayTimer() {
-        print("🎵 Starting play timer with interval: \(self.subscriptionDuration)")
-        print("🎵 Current thread: \(Thread.current)")
-        print("🎵 Is main thread: \(Thread.isMainThread)")
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
 
-        // Ensure we're on the main thread for timer scheduling
-        DispatchQueue.main.async {
+            print("🎵 Starting play timer with interval: \(self.subscriptionDuration)")
+            print("🎵 Current thread: \(Thread.current)")
+            print("🎵 Is main thread: \(Thread.isMainThread)")
+
+            self.didEmitPlaybackEnd = false
+
             self.playTimer = Timer.scheduledTimer(withTimeInterval: self.subscriptionDuration, repeats: true) { [weak self] timer in
-            print("🎵 ===== TIMER CALLBACK FIRED =====")
-            guard let self = self else {
-                print("🎵 Play timer callback: self is nil")
-                return
-            }
+                print("🎵 ===== TIMER CALLBACK FIRED =====")
+                guard let self = self else {
+                    print("🎵 Play timer callback: self is nil")
+                    return
+                }
 
-            // First check if we should stop the timer
-            guard let player = self.audioPlayer, let listener = self.playBackListener else {
-                print("🎵 Play timer callback: stopping timer - player or listener is nil")
-                self.stopPlayTimer()
-                return
-            }
+                // First check if we should stop the timer
+                guard let player = self.audioPlayer, let listener = self.playBackListener else {
+                    print("🎵 Play timer callback: stopping timer - player or listener is nil")
+                    self.stopPlayTimer()
+                    return
+                }
 
-            // Check if player is still playing
-            if !player.isPlaying {
-                print("🎵 Play timer callback: player stopped, stopping timer")
+                // Check if player is still playing
+                if !player.isPlaying {
+                    print("🎵 Play timer callback: player stopped, stopping timer")
 
-                // Send final callback if duration is available
-                if player.duration > 0 {
-                    let finalPlayBack = PlayBackType(
-                        isMuted: false,
-                        duration: player.duration * 1000,
-                        currentPosition: player.duration * 1000
-                    )
-                    print("🎵 Sending final callback before stopping")
-                    listener(finalPlayBack)
-
-                    // Send playback end event
-                    if let endListener = self.playbackEndListener {
-                        let endEvent = PlaybackEndType(
-                            duration: player.duration * 1000,
-                            currentPosition: player.duration * 1000
-                        )
-                        print("🎵 Sending playback end event")
-                        endListener(endEvent)
+                    // Send final callback if duration is available
+                    if player.duration > 0 {
+                        self.emitPlaybackEndEvents(durationMs: player.duration * 1000, includePlaybackUpdate: true)
                     }
+
+                    self.stopPlayTimer()
+                    return
                 }
 
-                self.stopPlayTimer()
-                return
-            }
+                let currentTime = player.currentTime * 1000 // Convert to ms
+                let duration = player.duration * 1000 // Convert to ms
 
-            let currentTime = player.currentTime * 1000 // Convert to ms
-            let duration = player.duration * 1000 // Convert to ms
+                print("🎵 Play timer callback: currentTime=\(currentTime)ms, duration=\(duration)ms")
 
-            print("🎵 Play timer callback: currentTime=\(currentTime)ms, duration=\(duration)ms")
+                let playBack = PlayBackType(
+                    isMuted: false,
+                    duration: duration,
+                    currentPosition: currentTime
+                )
 
-            let playBack = PlayBackType(
-                isMuted: false,
-                duration: duration,
-                currentPosition: currentTime
-            )
+                listener(playBack)
 
-            listener(playBack)
+                // Check if playback finished - use a small threshold for floating point comparison
+                let threshold = 100.0 // 100ms threshold
+                if duration > 0 && currentTime >= (duration - threshold) {
+                    print("🎵 Play timer callback: playback finished by position")
 
-            // Check if playback finished - use a small threshold for floating point comparison
-            let threshold = 100.0 // 100ms threshold
-            if duration > 0 && currentTime >= (duration - threshold) {
-                print("🎵 Play timer callback: playback finished by position")
+                    self.emitPlaybackEndEvents(durationMs: duration, includePlaybackUpdate: true)
 
-                // Send playback end event
-                if let endListener = self.playbackEndListener {
-                    let endEvent = PlaybackEndType(
-                        duration: duration,
-                        currentPosition: duration
-                    )
-                    print("🎵 Sending playback end event (threshold)")
-                    endListener(endEvent)
+                    self.stopPlayTimer()
+                    return
                 }
-
-                self.stopPlayTimer()
-                return
             }
+
+            print("🎵 Play timer created and scheduled on main thread")
         }
-        }
-        print("🎵 Play timer created and scheduled on main thread")
     }
 
     private func stopPlayTimer() {
-        self.playTimer?.invalidate()
-        self.playTimer = nil
+        stopTimer(for: \.playTimer)
+    }
+
+    private func stopTimer(for keyPath: ReferenceWritableKeyPath<HybridSound, Timer?>) {
+        if Thread.isMainThread {
+            self[keyPath: keyPath]?.invalidate()
+            self[keyPath: keyPath] = nil
+        } else {
+            DispatchQueue.main.sync {
+                self[keyPath: keyPath]?.invalidate()
+                self[keyPath: keyPath] = nil
+            }
+        }
+    }
+
+    private func emitPlaybackEndEvents(durationMs: Double, includePlaybackUpdate: Bool) {
+        guard !self.didEmitPlaybackEnd else {
+            print("🎵 Playback end already emitted, skipping duplicate")
+            return
+        }
+        self.didEmitPlaybackEnd = true
+
+        if includePlaybackUpdate, let listener = self.playBackListener {
+            let finalPlayBack = PlayBackType(
+                isMuted: false,
+                duration: durationMs,
+                currentPosition: durationMs
+            )
+            print("🎵 Emitting final playback update at \(durationMs)ms")
+            listener(finalPlayBack)
+        }
+
+        if let endListener = self.playbackEndListener {
+            let endEvent = PlaybackEndType(
+                duration: durationMs,
+                currentPosition: durationMs
+            )
+            print("🎵 Emitting playback end event at \(durationMs)ms")
+            endListener(endEvent)
+        }
     }
 
     // MARK: - AVAudioPlayerDelegate via proxy
+    deinit {
+        recordTimer?.invalidate()
+        playTimer?.invalidate()
+    }
+
     private class AudioPlayerDelegateProxy: NSObject, AVAudioPlayerDelegate {
         weak var owner: HybridSound?
         init(owner: HybridSound) { self.owner = owner }
@@ -975,21 +998,7 @@ final class HybridSound: HybridSoundSpec_base, HybridSoundSpec_protocol {
             print("🎵 AVAudioPlayer finished playing. success=\(flag)")
             guard let owner = owner else { return }
             let finalDurationMs = player.duration * 1000
-            if let listener = owner.playBackListener {
-                let finalPlayBack = PlayBackType(
-                    isMuted: false,
-                    duration: finalDurationMs,
-                    currentPosition: finalDurationMs
-                )
-                listener(finalPlayBack)
-            }
-            if let endListener = owner.playbackEndListener {
-                let endEvent = PlaybackEndType(
-                    duration: finalDurationMs,
-                    currentPosition: finalDurationMs
-                )
-                endListener(endEvent)
-            }
+            owner.emitPlaybackEndEvents(durationMs: finalDurationMs, includePlaybackUpdate: true)
             owner.stopPlayTimer()
         }
 
