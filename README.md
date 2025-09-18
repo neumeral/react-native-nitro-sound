@@ -1,8 +1,8 @@
 # react-native-nitro-sound
 
 [![yarn Version](http://img.shields.io/npm/v/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
-[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 [![Monthly Downloads](http://img.shields.io/npm/dm/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
+[![Weekly Downloads](http://img.shields.io/npm/dw/react-native-nitro-sound.svg?style=flat-square)](https://npmjs.org/package/react-native-nitro-sound)
 [![CI](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/ci.yml/badge.svg)](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/ci.yml)
 [![publish-package](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/publish-package.yml/badge.svg)](https://github.com/hyochan/react-native-nitro-sound/actions/workflows/publish-package.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg?style=flat-square)](https://www.typescriptlang.org/)
